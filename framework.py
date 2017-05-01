@@ -23,7 +23,8 @@ class EmbedGlove(nn.Module):
         vc = Counter()
         for l in f:
         	vc.update(Counter(l.split()))
-        self.vcb = vocab.Vocab(vc, wv_type = "glove.840B",min_freq=freq,specials = ["EOS","SOS"])        
+        self.vcb = vocab.Vocab(vc, wv_type = "glove.840B",min_freq=freq,specials = ["EOS","SOS"])
+        f.close()        
 
     def forward(self, sentence):
         """
@@ -36,6 +37,21 @@ class EmbedGlove(nn.Module):
         embeds = [list(self.vcb.vectors[i]) for i in inp]	#Converting ids to Glove vectors        
         #embeds = torch.FloatTensor(embeds)
         return ag.Variable(torch.FloatTensor(embeds))
+
+    def wordtoi(self,word):
+    	return self.vcb.stoi[word]
+
+
+class ChooseData():
+	"""docstring for ChooseData"""
+	def __init__(self, corpus):
+		"""
+		Load data and make it available to train in pairs
+		"""
+		f = open(corpus,'r')
+
+		self.arg = arg
+		
 
 
 class EncoderLSTM(nn.Module):
@@ -113,7 +129,7 @@ class DecoderLSTM(nn.Module):
 		embeds = self.embedding(sentence).view(len(sentence.split()),1,-1)	#modify the view to pass to lstm
 		#print type(embeds)
 		output, self.hidden = self.lstm(embeds, self.hidden)
-		output = self.sf(self.out(output.view(len(sentence.split()),-1)))
+		output = self.sf(self.out(output.view(len(sentence.split()),-1)))	#need to modify the view to pass to linear layers
 		return output, self.hidden
 
 
