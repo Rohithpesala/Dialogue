@@ -7,28 +7,41 @@ import torch.nn as nn
 import torch.autograd as ag
 from torch.autograd import Variable
 
-def train(input, target, encoder, decoder, encoder_opt, decoder_opt, crit, embedding, mod = None):
-	encoder.init_hidden()
+def train_lstm(input_sentence, target_sentence, encoder, decoder, encoder_opt, decoder_opt, crit, embedding):
+	"""
+	Parameters:
+	::
+	Return:
+	:: Loss
+	"""
+
+	encoder.initHidden()
 	encoder_opt.zero_grad()
 	decoder_opt.zero_grad()
 
 	loss = 0
 
-	tmp, h = encoder(input)
+	tmp, h = encoder(input_sentence)
 
-	if mod == None:
-		decoder.hidden = h
-	else:
-		pass
-
-	inps = [SOS_Token] + target.split() + [EOS_Token]
+	decoder.hidden = h
+	
+	inps = [const.SOS_Token] + target_sentence.split() + [const.EOS_Token]
 	for i in range(len(inps)-1):
 		out, h = decoder(inps[i])
-		loss += crit(out[0].embedding.wordtoi[inps[i+1]])
-	loss.backward()
 
+		#print out[0],embedding.vcb.stoi[inps[i+1]],inps[i+1]
+		print out.clone(),embedding.vcb.stoi[inps[i+1]]
+		loss += crit(out[0],ag.Variable(torch.LongTensor([embedding.vcb.stoi[inps[i+1]]])))
+		#return 0
+	#print "s"
+	#return 0
+	loss.backward()
+	#print "a"
 	encoder_opt.step()
+	#print "b"
 	decoder_opt.step()
+	#print "c"
+	return loss
 
 
 def evaluate(input, target, encoder, decoder, embedding, mod=None):
