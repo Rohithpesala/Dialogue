@@ -44,14 +44,14 @@ def train_lstm_instance(input_sentence, target_sentence, encoder, decoder, encod
 	loss = 0
 	
 	#Encoder Layer
-	inp_encoder = embedding(input_sentence)
+	inp_encoder = embedding(input_sentence).cuda()
 	tmp, h = encoder(inp_encoder)
 
 	#Decoder Layer
 	inp_decoder = const.SOS_Token + " " + target_sentence
 	tar_decoder = target_sentence + " " + const.EOS_Token
-	inp_embed = embedding(inp_decoder)
-	tar_indexes = embedding.generateID(tar_decoder)
+	inp_embed = embedding(inp_decoder).cuda()
+	tar_indexes = embedding.generateID(tar_decoder).cuda()
 	#print inp_embed[1]
 	decoder.hidden = h
 	#decoder.initHidden()
@@ -71,8 +71,8 @@ def train_lstm(corpus,n_epochs=1, save_every=100,freq=10,min_len_sentence = 10,n
 	embedding = fw.EmbedGlove(corpus,freq)
 	vocab_size = len(embedding.vcb)
 	embed_dim = 300
-	encoder = fw.EncoderLSTM(embed_dim,embed_dim*2,dropout,n_layers=n_layers)
-	decoder = fw.DecoderLSTM(embed_dim,embed_dim*2,vocab_size,n_layers=n_layers)
+	encoder = fw.EncoderLSTM(embed_dim,embed_dim*2,dropout,n_layers=n_layers).cuda()
+	decoder = fw.DecoderLSTM(embed_dim,embed_dim*2,vocab_size,n_layers=n_layers).cuda()
 	if os.path.isfile(os.getcwd()+"/Checkpoints/encoder"):
 		encoder = torch.load(os.getcwd()+"/Checkpoints/encoder")
 	if os.path.isfile(os.getcwd()+"/Checkpoints/decoder"):
