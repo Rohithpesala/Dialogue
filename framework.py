@@ -38,6 +38,13 @@ class EmbedGlove(nn.Module):
         #embeds = torch.FloatTensor(embeds)
         return ag.Variable(torch.FloatTensor(embeds))
 
+    def generateID(self,sentence):
+    	sentence = sentence.split()
+    	out  = [0 for i in range(len(sentence))]
+    	for i in range(len(sentence)):
+    		out[i] = self.wordtoi(sentence[i])
+    	return out
+
     def wordtoi(self,word):
     	return self.vcb.stoi[word]
 
@@ -59,7 +66,7 @@ class EncoderLSTM(nn.Module):
 	Encoder module to encode a given sentence into its meaning that can be fed to the next component
 	"""
 
-	def __init__(self, input_size, hidden_size, embedding, dropout, n_layers=1):
+	def __init__(self, input_size, hidden_size, dropout, n_layers=1):
 		"""
 		Parameters:
 		:: input_size :: Input size to the LSTM
@@ -71,7 +78,7 @@ class EncoderLSTM(nn.Module):
 		super(EncoderLSTM, self).__init__()
 		self.n_layers = n_layers
 		self.hidden_size = hidden_size
-		self.embedding = embedding
+		#self.embedding = embedding
 		hidden = self.initHidden()
 		self.lstm = nn.LSTM(input_size, hidden_size, n_layers, dropout = dropout)
 
@@ -83,9 +90,9 @@ class EncoderLSTM(nn.Module):
 		:: output :: encoded form of the sentence through an LSTM
 		"""
 		
-		embeds = self.embedding(sentence).view(len(sentence.split()),1,-1)	#modify the view to pass to lstm
+		#embeds = self.embedding(sentence).view(len(sentence.split()),1,-1)	#modify the view to pass to lstm
 		#print type(embeds)
-		output, self.hidden = self.lstm(embeds, self.hidden)
+		output, self.hidden = self.lstm(sentence.view(len(sentence),1,-1), self.hidden)
 		return output, self.hidden
 
 	def initHidden(self):
@@ -99,7 +106,7 @@ class DecoderLSTM(nn.Module):
 	"""
 	Decoder takes the hidden state and SOS token as input and produces a string ending with EOS token
 	"""
-	def __init__(self, input_size, hidden_size, output_size, embedding, dropout=0.0, n_layers=1):
+	def __init__(self, input_size, hidden_size, output_size, dropout=0.0, n_layers=1):
 		"""
 		Parameters:
 		:: input_size :: Input size to the LSTM
@@ -112,7 +119,7 @@ class DecoderLSTM(nn.Module):
 		super(DecoderLSTM, self).__init__()
 		self.n_layers = n_layers
 		self.hidden_size = hidden_size
-		self.embedding = embedding
+		#self.embedding = embedding
 		self.hidden = self.initHidden()
 		self.lstm = nn.LSTM(input_size, hidden_size, n_layers, dropout = dropout)
 		self.out = nn.Linear(hidden_size,output_size)
@@ -126,10 +133,11 @@ class DecoderLSTM(nn.Module):
 		:: output :: encoded form of the sentence through an LSTM
 		"""
 		
-		embeds = self.embedding(sentence).view(len(sentence.split()),1,-1)	#modify the view to pass to lstm
+		#embeds = self.embedding(sentence).view(len(sentence.split()),1,-1)	#modify the view to pass to lstm
 		#print type(embeds)
-		output, self.hidden = self.lstm(embeds, self.hidden)
-		output = self.sf(self.out(output.view(len(sentence.split()),-1)))	#need to modify the view to pass to linear layers
+		#print sentence.view(len(sentence),1,-1)
+		output, self.hidden = self.lstm(sentence.view(len(sentence),1,-1), self.hidden)
+		output = self.sf(self.out(output.view(len(sentence),-1)))	#need to modify the view to pass to linear layers
 		return output, self.hidden
 
 
@@ -138,4 +146,3 @@ class DecoderLSTM(nn.Module):
 		Initialize hidden layer		
 		"""
 		self.hidden = None
-		
