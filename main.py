@@ -44,14 +44,14 @@ def train_lstm_instance(input_sentence, target_sentence, encoder, decoder, encod
 	loss = 0
 	
 	#Encoder Layer
-	inp_encoder = embedding(input_sentence).cuda()
+	inp_encoder = embedding(input_sentence)#.cuda()
 	tmp, h = encoder(inp_encoder)
 
 	#Decoder Layer
 	inp_decoder = const.SOS_Token + " " + target_sentence
 	tar_decoder = target_sentence + " " + const.EOS_Token
-	inp_embed = embedding(inp_decoder).cuda()
-	tar_indexes = embedding.generateID(tar_decoder).cuda()
+	inp_embed = embedding(inp_decoder)#.cuda()
+	tar_indexes = embedding.generateID(tar_decoder)#.cuda()
 	#print inp_embed[1]
 	decoder.hidden = h
 	#decoder.initHidden()
