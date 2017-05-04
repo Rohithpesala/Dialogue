@@ -79,30 +79,39 @@ def train_lstm(corpus,n_epochs=1, save_every=100,freq=10,min_len_sentence = 10,n
 		decoder = torch.load(os.getcwd()+"/Checkpoints/decoder")
 	encoder_opt = optim.SGD(encoder.parameters(),lr = 0.01)
 	decoder_opt = optim.SGD(decoder.parameters(),lr = 0.01)
-	tot_loss = 0.0
-	f = open(corpus,'r')
-	i=0
-	prev = ""
-	for l in f:
-		i+=1
-		if i%save_every == 0:
-			print "==================================================================================================================="
-			print "Step = ",i			
-			print "Loss = ",tot_loss/save_every
-			print "Time = ",timeSince(start,i/87980.0)
-			tot_loss = 0
-			torch.save(encoder,os.getcwd()+"/Checkpoints/encoder")
-			torch.save(decoder,os.getcwd()+"/Checkpoints/decoder")
-		if i == 1:
-			prev = l
-			continue
-		pres = l
-		if len(pres.split())>min_len_sentence or len(prev.split())>min_len_sentence:
-			prev = l
-			continue
-		else:
-			tot_loss+=train_lstm_instance(prev,pres,encoder,decoder,encoder_opt,decoder_opt,nn.NLLLoss(),embedding)
-
+	for ep in range(n_epochs):
+		tot_loss = 0.0
+		f = open(corpus,'r')
+		i=0
+		prev = ""
+		for l in f:
+			i+=1
+			if i%save_every == 0:
+				print "==================================================================================================================="
+				print "Epoch = ",ep
+				print "Step = ",i			
+				print "Loss = ",tot_loss/save_every
+				print "Time = ",timeSince(start,i/87980.0)
+				tot_loss = 0
+				torch.save(encoder,os.getcwd()+"/Checkpoints/encoder")
+				torch.save(decoder,os.getcwd()+"/Checkpoints/decoder")
+			if i == 1:
+				prev = l
+				continue
+			pres = l
+			if len(pres.split())>min_len_sentence or len(prev.split())>min_len_sentence:
+				prev = l
+				continue
+			else:
+				tot_loss+=train_lstm_instance(prev,pres,encoder,decoder,encoder_opt,decoder_opt,nn.NLLLoss(),embedding)
+		f.close()
 
 def evaluate(input, target, encoder, decoder, embedding, mod=None):
 	pass
+
+def main():
+	train_lstm("Friends-dialogues.txt",n_epochs=5)
+
+
+if __name == "__main__"
+	main()
