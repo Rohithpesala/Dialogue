@@ -106,12 +106,44 @@ def train_lstm(corpus,n_epochs=1, save_every=100,freq=10,min_len_sentence = 10,n
 				tot_loss+=train_lstm_instance(prev,pres,encoder,decoder,encoder_opt,decoder_opt,nn.NLLLoss(),embedding)
 		f.close()
 
-def evaluate(input, target, encoder, decoder, embedding, mod=None):
-	pass
+def predict_lstm(input_sentence,corpus):
+	embedding = fw.EmbedGlove(corpus,freq)
+	vocab_size = len(embedding.vcb)
+	embed_dim = 300
+	encoder = fw.EncoderLSTM(embed_dim,embed_dim*2,dropout,n_layers=n_layers).cuda()
+	decoder = fw.DecoderLSTM(embed_dim,embed_dim*2,vocab_size,n_layers=n_layers).cuda()
+	if os.path.isfile(os.getcwd()+"/Checkpoints/encoder"):
+		encoder = torch.load(os.getcwd()+"/Checkpoints/encoder")
+	if os.path.isfile(os.getcwd()+"/Checkpoints/decoder"):
+		decoder = torch.load(os.getcwd()+"/Checkpoints/decoder")
+	
+	encoder.initHidden()
+	#Encoder Layer
+	inp_encoder = embedding(input_sentence)#.cuda()
+	tmp, h = encoder(inp_encoder)
+
+	#Decoder Layer
+	#inp_decoder = const.SOS_Token + " " + target_sentence
+	#tar_decoder = target_sentence + " " + const.EOS_Token
+	inp_embed = embedding(const.SOS_Token)#.cuda()
+	#tar_indexes = embedding.generateID(tar_decoder)#.cuda()
+	#print inp_embed[1]
+	decoder.hidden = h
+	#decoder.initHidden()
+	pword = ""
+	out_str = ""
+	while pword!=const.EOS_Token:
+		out_str += pword + " "
+		out, h = decoder(inp_embed)
+		ind = out.data.topk(1)[1][0][0]
+		pword = embedding.itoword(ind)
+		inp_embed = embedding(pword)
+	
+	return out_str
 
 def main():
 	train_lstm("Friends-dialogues.txt",n_epochs=5)
 
 
-if __name__ == "__main__"
+if __name__ == "__main__":
 	main()
