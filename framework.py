@@ -48,6 +48,9 @@ class EmbedGlove(nn.Module):
     def wordtoi(self,word):
     	return self.vcb.stoi[word]
 
+    def itoword(self,i):
+    	return self.vcb.itos[i]
+
 
 class ChooseData():
 	"""docstring for ChooseData"""
