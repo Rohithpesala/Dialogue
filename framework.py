@@ -149,3 +149,20 @@ class DecoderLSTM(nn.Module):
 		Initialize hidden layer		
 		"""
 		self.hidden = None
+
+class Mem_net(nn.Module):
+	"""
+
+	"""
+	def __init__(self, embed_dim, n_vectors, n_hops):
+		super(Mem_net, self).__init__()
+		self.embed_dim = embed_dim
+		self.n_vectors = n_vectors
+		self.n_hops = n_hops
+		self.memory = ag.Variable(torch.FloatTensor(embed_dim,n_vectors))
+		#self.R = ag.Variable(torch.FloatTensor(embed_dim,embed_dim))
+		self.sf = nn.Softmax()
+		self.net = 
+
+	def forward(self,inp_vector):
+		mmul = torch.mm(inp_vector,self.memory)
