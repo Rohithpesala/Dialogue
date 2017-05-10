@@ -298,6 +298,7 @@ def train_mem(corpus,n_epochs=1, save_every=100,freq=10,min_len_sentence = 10,n_
 				loss.backward()
 				mem_sent = mem_sent[1:memory] + [l]
 		f.close()
+	loss_f.close()
 
 def predict_mem(corpus,freq):
 	embedding = fw.EmbedGlove(corpus,freq)
