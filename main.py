@@ -102,6 +102,7 @@ def train_lstm(corpus,n_epochs=1, save_every=10000,freq=10,min_len_sentence = 10
 		# 	flist[i] = l
 		# 	i+=1
 		# i=0
+		loss_f = open("Seq_loss.txt","w")
 		for l in f:
 			i+=1
 			if i%save_every == 0:
@@ -231,7 +232,7 @@ def train_mem_instance(n_layers, input_sentence, target_sentence, context_senten
 	# decoder_opt.step()
 	return loss
 
-def train_mem(corpus,n_epochs=1, save_every=10000,freq=10,min_len_sentence = 10,n_layers=3,dropout = 0.1,batch_size=64,memory=5,n_hops=1):
+def train_mem(corpus,n_epochs=1, save_every=100,freq=10,min_len_sentence = 10,n_layers=3,dropout = 0.1,batch_size=64,memory=5,n_hops=1):
 	start = time.time()
 	embedding = fw.EmbedGlove(corpus,freq)
 	vocab_size = len(embedding.vcb)
@@ -252,6 +253,7 @@ def train_mem(corpus,n_epochs=1, save_every=10000,freq=10,min_len_sentence = 10,
 	encoder_opt.zero_grad()
 	decoder_opt.zero_grad()
 	loss = 0
+	loss_f = open("mem_loss.txt","w")
 	for ep in range(n_epochs):
 		tot_loss = 0.0
 		f = open(corpus,'r')
@@ -272,6 +274,7 @@ def train_mem(corpus,n_epochs=1, save_every=10000,freq=10,min_len_sentence = 10,
 				print "Step = ",i			
 				print "Loss = ",tot_loss/save_every
 				print "Time = ",timeSince(start,i/10000.0)
+				loss_f.write(str(tot_loss/save_every) + "\n")
 				tot_loss = 0
 				print mem_sent
 				torch.save(encoder,os.getcwd()+"/Checkpoints/encoder_mem")
