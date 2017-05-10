@@ -160,10 +160,22 @@ class Mem_net(nn.Module):
 		self.embed_dim = embed_dim
 		self.n_vectors = n_vectors
 		self.n_hops = n_hops
-		self.memory = ag.Variable(torch.FloatTensor(embed_dim,n_vectors))
+		# self.memory = ag.Variable(torch.FloatTensor(embed_dim,n_vectors))
 		#self.R = ag.Variable(torch.FloatTensor(embed_dim,embed_dim))
 		self.sf = nn.Softmax()
 		# self.net = 
 
-	def forward(self,inp_vector):
-		mmul = torch.mm(inp_vector,self.memory)
+	def forward(self,inp_vector,mem_vectors):
+		"""
+		Parameters
+		:: inp_vector :: query vector (1xd)
+		:: mem_vectors :: memory vectors (dxm)
+		Return:
+		:: output :: output context vector(1xd)
+		"""
+		for i in range(self.n_hops):
+			mmul = self.sf(torch.mm(inp_vector,mem_vectors))
+			output = torch.t(torch.mm(mem_vectors,torch.t(mmul)))
+			inp_vector += output
+		output = inp_vector
+		return output
