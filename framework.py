@@ -140,7 +140,8 @@ class DecoderLSTM(nn.Module):
 		#print type(embeds)
 		#print sentence.view(len(sentence),1,-1)
 		output, self.hidden = self.lstm(sentence.view(len(sentence),1,-1), self.hidden)
-		output = self.sf(self.out(output.view(len(sentence),-1)))	#need to modify the view to pass to linear layers
+		output = self.out(output.view(len(sentence),-1))
+		# output = self.sf()	#need to modify the view to pass to linear layers
 		return output, self.hidden
 
 
@@ -162,7 +163,7 @@ class Mem_net(nn.Module):
 		self.memory = ag.Variable(torch.FloatTensor(embed_dim,n_vectors))
 		#self.R = ag.Variable(torch.FloatTensor(embed_dim,embed_dim))
 		self.sf = nn.Softmax()
-		self.net = 
+		# self.net = 
 
 	def forward(self,inp_vector):
 		mmul = torch.mm(inp_vector,self.memory)
