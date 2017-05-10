@@ -71,16 +71,16 @@ def train_lstm(corpus,n_epochs=1, save_every=1000,freq=10,min_len_sentence = 10,
 	embedding = fw.EmbedGlove(corpus,freq)
 	vocab_size = len(embedding.vcb)
 	embed_dim = 300
-	encoder = fw.EncoderLSTM(embed_dim,embed_dim/6,dropout,n_layers=n_layers)#.cuda()
-	decoder = fw.DecoderLSTM(embed_dim,embed_dim/6,vocab_size,n_layers=n_layers)#.cuda()
-	print embed_dim/6
+	encoder = fw.EncoderLSTM(embed_dim,embed_dim/2,dropout,n_layers=n_layers)#.cuda()
+	decoder = fw.DecoderLSTM(embed_dim,embed_dim/2,vocab_size,n_layers=n_layers)#.cuda()
+	print embed_dim/2
 	print vocab_size
 	# if os.path.isfile(os.getcwd()+"/Checkpoints/encoder"):
 	# 	encoder = torch.load(os.getcwd()+"/Checkpoints/encoder")
 	# if os.path.isfile(os.getcwd()+"/Checkpoints/decoder"):
 	# 	decoder = torch.load(os.getcwd()+"/Checkpoints/decoder")
-	encoder_opt = optim.SGD(encoder.parameters(),lr = 0.1, momentum = 0.9)
-	decoder_opt = optim.SGD(decoder.parameters(),lr = 0.1, momentum = 0.9)
+	encoder_opt = optim.SGD(encoder.parameters(),lr = 0.01, momentum = 0.5)
+	decoder_opt = optim.SGD(decoder.parameters(),lr = 0.01, momentum = 0.5)
 	encoder_opt.zero_grad()
 	decoder_opt.zero_grad()
 	loss = 0
@@ -89,8 +89,8 @@ def train_lstm(corpus,n_epochs=1, save_every=1000,freq=10,min_len_sentence = 10,
 		f = open(corpus,'r')
 		i=0
 		prev = ""
-		flist = [0 for i in range(90000)]
-		i=0
+		# flist = [0 for i in range(90000)]
+		# i=0
 		# for l in f:
 		# 	flist[i] = l
 		# 	i+=1
@@ -102,7 +102,7 @@ def train_lstm(corpus,n_epochs=1, save_every=1000,freq=10,min_len_sentence = 10,
 				print "Epoch = ",ep
 				print "Step = ",i			
 				print "Loss = ",tot_loss/save_every
-				print "Time = ",timeSince(start,i/40000.0)
+				print "Time = ",timeSince(start,i/10000.0)
 				tot_loss = 0
 				torch.save(encoder,os.getcwd()+"/Checkpoints/encoder")
 				torch.save(decoder,os.getcwd()+"/Checkpoints/decoder")
@@ -147,7 +147,7 @@ def predict_lstm(input_sentence,corpus,freq):
 	#Encoder Layer
 	inp_encoder = embedding(input_sentence+ " " + const.EOS_Token)#.cuda()
 	tmp, h = encoder(inp_encoder)
-	print inp_encoder
+	# print inp_encoder
 
 	#Decoder Layer
 	#inp_decoder = const.SOS_Token + " " + target_sentence
@@ -163,7 +163,7 @@ def predict_lstm(input_sentence,corpus,freq):
 		out_str += pword + " "
 		print pword
 		out, h = decoder(inp_embed)
-		print out.clone()
+		# print out.clone()
 		ind = out.data.topk(1)[1][0][0]
 		pword = embedding.itoword(ind)
 		inp_embed = embedding(pword)
