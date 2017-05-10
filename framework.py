@@ -176,6 +176,6 @@ class Mem_net(nn.Module):
 		for i in range(self.n_hops):
 			mmul = self.sf(torch.mm(inp_vector,mem_vectors))
 			output = torch.t(torch.mm(mem_vectors,torch.t(mmul)))
-			inp_vector += output
-		output = inp_vector
+		# 	inp_vector += output
+		# output = inp_vector
 		return output
